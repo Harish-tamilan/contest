@@ -1,0 +1,90 @@
+.container {
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    width: 80%;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  textarea {
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    right: 50%;
+    
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    background-color: #555;
+  }
+  
+  ul {
+    padding-left: 0;
+  }
+  
+  li {
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  button.update-btn {
+    background-color: #4CAF50;
+  }
+  
+  button.delete-btn {
+    background-color: #f44336;
+  }
+  
+  button.update-btn,
+  button.delete-btn {
+    color: #fff;
+    padding: 5px 10px;
+    margin-right: 5px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button.update-btn:hover,
+  button.delete-btn:hover {
+    opacity: 0.8;
+  }
+  

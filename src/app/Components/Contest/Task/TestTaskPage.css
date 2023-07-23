@@ -1,0 +1,34 @@
+.test-task-container {
+    margin: 20px;
+  }
+  
+  .test-task-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .test-task-container h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .mcq-question {
+    margin-bottom: 10px;
+  }
+  
+  .mcq-options label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .programming-question textarea {
+    width: 100%;
+    height: 100px;
+    resize: vertical;
+    margin-top: 5px;
+  }
+  
+  button {
+    margin-top: 10px;
+  }
+  
