@@ -9,8 +9,28 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lang-cpp": "^0.18.0",
+    "@codemirror/lang-css": "^6.1.1",
+    "@codemirror/lang-java": "^0.17.0",
+    "@codemirror/lang-javascript": "^6.1.6",
+    "@codemirror/lang-python": "^0.18.1",
+    "@codemirror/state": "^6.2.0",
+    "@monaco-editor/react": "^4.5.0",
+    "@reduxjs/toolkit": "^1.6.2",
+    "@types/node": "^16.11.15",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "@uiw/codemirror-extensions-langs": "^4.19.16",
+    "@uiw/codemirror-theme-okaidia": "^4.19.16",
+    "@uiw/react-codemirror": "^4.19.16",
+    "antd": "^5.7.3",
+    "autoprefixer": "^10.4.13",
+    "axios": "^1.4.0",
+    "codemirror": "^5.58.3",
+    "mongoose": "^7.4.0",
     "next": "13.4.12",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "styled-components": "^6.0.5"
   }
 }

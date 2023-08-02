@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import Login from "./Login";
 import Signup from "./Signup";
+import HomePage from "./HomePage";
 
 const EmployerContent = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleLoginButtonClick = () => {
     setShowLogin(true);
@@ -16,8 +18,30 @@ const EmployerContent = () => {
     setShowRegister(true);
   };
 
+  const loginHandler = async (username, password)=>{
+    let body = {
+      email: username,
+      password: password
+    }
+    body = JSON.stringify(body);
+    let response = await fetch('/api/login?type=Manager', {
+      method: "POST",
+      body: body
+    });
+    response = await response.json();
+    if(response.status=='success'){
+      setIsLoggedIn(true);
+    } else{
+      alert("Invalid credentials");
+    }
+  }
+
+  const logoutHandler = ()=>{
+    setIsLoggedIn(false);
+  }
+
   return (
-    <div>
+    isLoggedIn ? <HomePage handleLogout={logoutHandler}/> :<div>
       <h2>Welcome, Recruiter!</h2>
       <p>
         Thank you for choosing our platform to post your projects and hire talented candidates. With our platform, you can easily showcase your projects, connect with skilled professionals, and find the perfect candidates for your team.
@@ -38,7 +62,7 @@ const EmployerContent = () => {
         <button onClick={handleLoginButtonClick}>Login</button>
         <button onClick={handleRegisterButtonClick}>Register</button>
       </div>
-      {showLogin && <Login />}
+      {showLogin && <Login handleButtonClicked={loginHandler}/>}
       {showRegister && <Signup />}
     </div>
   );

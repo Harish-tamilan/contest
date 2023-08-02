@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const Signup = ({ updateUserCredentials, handleButtonClicked }) => {
+const Signup = (props) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,22 +12,28 @@ const Signup = ({ updateUserCredentials, handleButtonClicked }) => {
   const [preferredCommunication, setPreferredCommunication] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  const handleRegistrationSubmit = (e) => {
+
+  const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
     const user = {
-      fullName,
+      name:fullName,
       email,
       password,
-      mobileNumber,
-      whatsappUpdates,
-      companyName,
-      professionalEmail,
-      professionalTitle,
-      preferredCommunication,
-      termsAccepted,
+      mobile:mobileNumber,
+      type: 'Manager'
     };
-    updateUserCredentials(user);
     console.log("Registered:", user);
+    let response = await fetch('/api/user/update',{
+      method:"POST",
+      body: JSON.stringify(user)
+    });
+    response = await response.json();
+    console.log('response is ', response);
+    if(response.status=='success'){
+      alert('Registration successfull');
+    }else{
+      alert(response.error);
+    }
     setFullName("");
     setEmail("");
     setPassword("");
@@ -38,6 +44,7 @@ const Signup = ({ updateUserCredentials, handleButtonClicked }) => {
     setPreferredCommunication("");
     setTermsAccepted(false);
   };
+  
 
   return (
     <div>
@@ -124,13 +131,13 @@ const Signup = ({ updateUserCredentials, handleButtonClicked }) => {
           />
         </label>
         <br />
-        <button id="button_signup" onClick={() => handleButtonClicked("signup")} type="submit">
+        <button id="button_signup" type="submit">
           Sign Up
         </button>
       </form>
       <button
         id="button_signup_back"
-        onClick={() => handleButtonClicked("")}
+        onClick={props.handleButtonClicked}
       >
         Back
       </button>

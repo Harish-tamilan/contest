@@ -24,16 +24,46 @@ const FirstPage = () => {
     setInputType(value);
   };
 
-  const updateUserCredentials = (user) => {
-    setUserCredentials((prevCredentials) => [...prevCredentials, user]);
+  const updateUserCredentials = async (user) => {
+    console.log('inside updateUserCredentials of Participant first page, user is ', user);
+    const userData = {
+      name:user.fullName,
+      email: user.email,
+      password: user.password,
+      mobile:user.mobileNumber,
+      type: 'Participant'
+    };
+    let response = await fetch('/api/user/update',{
+      method:"POST",
+      body: JSON.stringify(userData)
+    });
+    response = await response.json();
+    
+    if(response.status=='success'){
+      alert('Registration successfull');
+    }else{
+      alert(response.error);
+    }
   };
 
-  const checkCredentials = (username, password) => {
-    const isCredentialsCorrect = userCredentials.some(
-      (credential) =>
-        credential.username === username && credential.password === password
-    );
-    setIsCredentialsCorrect(isCredentialsCorrect);
+  const checkCredentials = async (username, password) => {
+    let body = {
+      email: username,
+      password: password
+    }
+    body = JSON.stringify(body);
+    let response = await fetch('/api/login?type=Participant', {
+      method: "POST",
+      body: body
+    });
+    response = await response.json();
+    console.log('response of login in User Page is ', response);
+    if(response.status=='success'){
+      setIsCredentialsCorrect(true);
+      localStorage.setItem("user", JSON.stringify(response.result));
+    } else{
+      alert("Invalid credentials");
+    }
   };
 
   const handleLogout = () => {

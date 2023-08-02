@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 import ContestDetailsPage from '../Contest/ContestDetailsPage';
 import UpcomingContestsPage from '../Contest/UpcomingContestsPage';
 import PreviousContestsPage from '../Contest/PreviousContestsPage';
 import LiveContestsPage from '../Contest/LiveContestPage';
 import ProfilePage from './ProfilePage';
+import ContestPage from '../Contest/ContestPage';
 
 const HomePage = ({ handleLogout }) => {
-  const contests = [
+  const [contests, setContests] = useState([
     {
       id: 1,
       title: 'Contest 1',
@@ -47,12 +48,27 @@ const HomePage = ({ handleLogout }) => {
       updates: 'You have a new Update',
       updateDetails: 'Announcement: The challenge details have been updated. Please review the changes.',
     },
-  ];
+  ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activePage, setActivePage] = useState('live');
   const [selectedContestId, setSelectedContestId] = useState(null);
   const [profilePageVisible, setProfilePageVisible] = useState(false);
+  const [showContest, setShowContest] = useState(false);
+  const [contest, setContest] = useState({});
+
+  useEffect(() => {
+    fetchContests();
+  }, [])
+
+  const fetchContests = async () => {
+    let response = await fetch('/api/contest/getAll', { method: 'GET' });
+    response = await response.json();
+    console.log('response, ', response);
+    if (response.status == 'success') {
+      setContests(response.result);
+    }
+  }
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -63,8 +79,40 @@ const HomePage = ({ handleLogout }) => {
   };
 
   const handleContestClick = (contestId) => {
-    setSelectedContestId(contestId);
+    console.log('inside handleContestClick, contestId is ', contestId);
+    let cont = {};
+    for (let contest of contests) {
+      if (contest._id == contestId) {
+        cont = contest;
+        break;
+      }
+    }
+    console.log('cont is ', cont);
+    setShowContest(true);
+    setContest(cont);
   };
+
+  const handleUpcomingRegister = async (contestId) => {
+    console.log('inside handleUpcomingRegister');
+    let user = JSON.parse(localStorage.getItem('user'));
+    let userId = user._id;
+    let body = {
+      contest: contestId,
+      user: userId
+    }
+    body = JSON.stringify(body);
+    let response = await fetch('/api/user/submitTest', {
+      method: "POST",
+      body
+    });
+    response = await response.json();
+    console.log('response of handleUpcomingRegister : ', handleUpcomingRegister);
+    if (response.status == 'success') {
+      alert('Contest registered sucessfully');
+    } else {
+      alert(response.error);
+    }
+  }
 
   const handlePageClick = (page) => {
     setActivePage(page);
@@ -79,9 +127,60 @@ const HomePage = ({ handleLogout }) => {
     setProfilePageVisible(false);
   };
 
-  const filteredContests = contests.filter((contest) =>
-    contest.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const parseDateTime = (dateTimeStr = '') => {
+    const [datePart, timePart] = dateTimeStr.split(' ');
+    const [day, month, year] = datePart.split('/');
+    let hour, minute;
+    if (timePart)
+      [hour, minute] = timePart?.split(':');
+    else {
+      hour = "00";
+      minute = "00";
+    }
+    return new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+  };
+
+
+  const filterUpcomingContests = () => {
+    const currentDate = new Date();
+    const contestsWithDateTime = contests.map((contest) => ({
+      ...contest,
+      startDateObj: parseDateTime(contest.startDate),
+    }));
+    const upcomingContests = contestsWithDateTime.filter(
+      (contest) => {
+        console.log(contest.startDateObj + ":" + currentDate);
+        return contest.startDateObj > currentDate
+      }
+    );
+    console.log('upcoming contests, : ', upcomingContests);
+    return upcomingContests;
+  };
+
+  const filterPastContests = () => {
+    let date = new Date();
+    const contestsWithDateTime = contests.map((contest) => ({
+      ...contest,
+      endDateObj: parseDateTime(contest.endDate),
+    }));
+    const upcomingContests = contestsWithDateTime.filter(
+      (contest) => contest.endDateObj < date
+    );
+    return upcomingContests;
+  }
+
+  const filterLiveContests = () => {
+    let date = new Date();
+    const contestsWithDateTime = contests.map((contest) => ({
+      ...contest,
+      endDateObj: parseDateTime(contest.endDate),
+      startDateObj: parseDateTime(contest.startDate),
+    }));
+    const upcomingContests = contestsWithDateTime.filter(
+      (contest) => contest.startDateObj <= date && contest.endDateObj >= date
+    );
+    return upcomingContests;
+  }
 
   let pageContent;
   if (profilePageVisible) {
@@ -98,26 +197,26 @@ const HomePage = ({ handleLogout }) => {
   } else if (activePage === 'upcoming') {
     pageContent = (
       <UpcomingContestsPage
-        contests={filteredContests}
-        handleContestClick={handleContestClick}
+        contests={filterUpcomingContests()}
+        handleContestClick={handleUpcomingRegister}
       />
     );
   } else if (activePage === 'previous') {
     pageContent = (
       <PreviousContestsPage
-        contests={filteredContests}
+        contests={filterPastContests()}
         handleContestClick={handleContestClick}
       />
     );
   } else {
     pageContent = (
-      <LiveContestsPage contests={filteredContests} handleContestClick={handleContestClick} />
+      <LiveContestsPage contests={filterLiveContests()} handleContestClick={handleContestClick} />
     );
   }
 
   return (
     <div className="homepage-container">
-      <nav className="navbar">
+      {showContest ? <ContestPage contest={contest} /> : <nav className="navbar">
         <div
           className={`nav-item ${activePage === 'live' ? 'active' : ''}`}
           onClick={() => handlePageClick('live')}
@@ -156,7 +255,7 @@ const HomePage = ({ handleLogout }) => {
             onChange={handleSearch}
           />
         </div>
-      </nav>
+      </nav>}
 
       <section className="homepage-section">{pageContent}</section>
     </div>

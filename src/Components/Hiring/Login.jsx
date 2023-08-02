@@ -1,25 +1,19 @@
 import React, { useState } from "react";
 
-const Login = ({ checkCredentials, setIsCredentialsCorrect, handleButtonClicked }) => {
+const Login = (props) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    const isCorrect = checkCredentials(username, password);
-    setIsCredentialsCorrect(isCorrect);
-    console.log("Logged in with username:", username, "and password:", password);
-    setUsername("");
-    setPassword("");
-  };
+  const loginHandler = ()=>{
+    console.log('inside loginhandler');
+    props.handleButtonClicked(username, password);
+  }
 
-  const handleLoginButtonClick = () => {
-    handleButtonClicked("login");
-  };
 
   return (
     <div>
-      <form className="form_login" onSubmit={handleLoginSubmit}>
+      <div className="form_login">
         <label>
           Username:
           <input
@@ -39,10 +33,10 @@ const Login = ({ checkCredentials, setIsCredentialsCorrect, handleButtonClicked 
         </label>
         <br />
         
-        <button id="button_login" onClick={handleLoginButtonClick} type="submit">
-          Log In
+        <button id="button_login" onClick={loginHandler}>
+          Log Innnn
         </button>
-      </form>
+      </div>
     </div>
   );
 };
