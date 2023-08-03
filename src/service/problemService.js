@@ -46,3 +46,33 @@ export const getBoilerPlateCodeService = async (problemId, language) => {
         }
     }
 }
+
+export const runProblemService = async(body)=>{
+    try{
+        let response = await axios.post(`http://localhost:5001/code/test`, body);
+        response = response.data;
+        console.log('response of getBoilerPlateCodeService, ', response);
+        return response;
+    } catch(e){
+        return {
+            statusCode: 500,
+            status: 'error',
+            error: e.message
+        }
+    }
+}
+
+export const submitProblemService = async(body)=>{
+    try{
+        let response = await axios.post(`http://localhost:5001/code/submit`, body);
+        response = response.data;
+        console.log('response of getBoilerPlateCodeService, ', response);
+        return response;
+    } catch(e){
+        return {
+            statusCode: 500,
+            status: 'error',
+            error: e.message
+        }
+    }
+}

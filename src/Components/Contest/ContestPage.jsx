@@ -58,11 +58,12 @@ const ContestScreen = (props) => {
       let prob = { ...problem, submitted: false, attempted: false };
       probs.push(prob);
     }
-    let codess=[]
-    for(let i=0;i<n;i++){
+    let codess = []
+    for (let i = 0; i < n; i++) {
       codess.push({
-        code:"",
-        language:""
+        code: "",
+        language: "",
+        score: 0
       })
     }
     setCodeResults(codess);
@@ -88,17 +89,18 @@ const ContestScreen = (props) => {
 
   const onCodeChange = (code, ind, lang) => {
     let codes = [...codeResults];
-    if(codes.length==0){
+    if (codes.length == 0) {
       codes.push({});
     }
     codes[ind].code = code;
     codes[ind].language = lang;
+    codes[ind].score = codes[ind].score || 0;
     setCodeResults(codes);
   }
 
-  const handleRun = async(ind) => {
+  const handleRun = async (ind) => {
     console.log('inside handleRun in ContestPage');
-    let body = {...codeResults[ind]};
+    let body = { ...codeResults[ind] };
     let commentIndex = codeResults[ind].code.indexOf("/*Do");
     body.code = codeResults[ind].code.substring(0, commentIndex);
     body.language = codeResults[ind].language;
@@ -106,13 +108,77 @@ const ContestScreen = (props) => {
     body.testCaseAnswers = problem.testCaseAnswers;
     body.problemId = problem.problemId;
     console.log(body);
+    let response = await fetch('/api/problem/run', {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    response = await response.json();
+    console.log('response of handleRun, ', response);
+    if (response.status == 'success') {
+      alert('Sample test cases passed');
+    } else {
+      let responseString = response?.result.toString();
+      let str = "";
+      for (let key of Object.keys(response.result)) {
+        str += `${key}:${response.result[key]}\n`;
+      }
+      console.log('responseString, ', str);
+      alert(str);
+    }
   }
 
-  const handleSubmit = (ind) => {
+  const handleBackButtonClick = ()=>{
+    setShowEditor(false);
+  }
+
+  const handleSubmit = async (ind) => {
     console.log('inside handleSubmit in ContestPage');
+    let body = {
+      problemId: problem.problemId,
+      language: codeResults[ind].language
+    };
+    let commentIndex = codeResults[ind].code.indexOf("/*Do");
+    body.code = codeResults[ind].code.substring(0, commentIndex);
+    console.log('body is ', body);
+    let response = await fetch('/api/problem/submit', {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    response = await response.json();
+    console.log('response of handleSubmit, ', response);
+    let score = response.passCount / (response.passCount + response.failCount) * 100;
+    console.log('score is ', score, ', codeResults[ind].score', codeResults[ind].score);
+    if (score > codeResults[ind].score) {
+      let codess = [...codeResults];
+      codeResults[ind].score = score;
+      setCodeResults(codess);
+    }
   }
 
-  const fetchCode = ()=>{
+  const handleFinalSubmit = () => {
+    let user = JSON.parse(localStorage.getItem("user"));
+    let scores = [], n = props.contest?.questions?.length;
+    for (let i = 0; i < n; i++) {
+      let obj = {
+        problem: props.contest?.questions[i]._id,
+        problemId: props.contest?.questions[i].problemId
+      }
+      if (codeResults[i] && codeResults[i].score) {
+        obj.score = codeResults[i].score;
+      } else {
+        obj.score = 0;
+      }
+      scores.push(obj);
+    }
+    let body = {
+      user: user._id,
+      contest: contest._id,
+      scores
+    }
+    console.log('finalSubmission body is ', body);
+  }
+
+  const fetchCode = () => {
     console.log('inside fetchCode, index is ', index);
     console.log('codeResults[index] is, ', codeResults[index]);
     return codeResults[index]?.code || "";
@@ -131,20 +197,24 @@ const ContestScreen = (props) => {
         handleSubmit={handleSubmit}
         code={fetchCode()}
         id={problem._id}
+        onBackClick={handleBackButtonClick}
       /> :
-        <ProblemList>
-          {problems?.map((problem, ind) => (
-            <ProblemItem key={problem.problemId}>
-              <ProblemTitle>{problem.problem}</ProblemTitle>
-              <ProblemStatus
-                submitted={problem.submitted}
-                attempted={problem.attempted}
-              >
-                {fetchComponent(problem, ind)}
-              </ProblemStatus>
-            </ProblemItem>
-          ))}
-        </ProblemList>}
+        <div>
+          <ProblemList>
+            {problems?.map((problem, ind) => (
+              <ProblemItem key={problem.problemId}>
+                <ProblemTitle>{problem.problem}</ProblemTitle>
+                <ProblemStatus
+                  submitted={problem.submitted}
+                  attempted={problem.attempted}
+                >
+                  {fetchComponent(problem, ind)}
+                </ProblemStatus>
+              </ProblemItem>
+            ))}
+          </ProblemList>
+          <Button onClick={handleFinalSubmit}>Submit</Button>
+        </div>}
     </ContestContainer>
   );
 };

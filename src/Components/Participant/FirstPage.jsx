@@ -60,7 +60,8 @@ const FirstPage = () => {
     console.log('response of login in User Page is ', response);
     if(response.status=='success'){
       setIsCredentialsCorrect(true);
-      localStorage.setItem("user", JSON.stringify(response.result));
+      console.log('response.result in handelogin, ', response.data);
+      localStorage.setItem("user", JSON.stringify(response.data));
     } else{
       alert("Invalid credentials");
     }

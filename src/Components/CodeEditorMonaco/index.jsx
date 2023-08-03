@@ -172,6 +172,7 @@ function CodeEditorMonaco(props) {
 
         <Button onClick={()=>props.handleRun(props.ind)}>Run</Button>
         <Button onClick={()=>props.handleSubmit(props.ind)}>Submit</Button>
+        <Button onClick={()=>props.onBackClick()}>Back</Button>
       </RightSide>
     </FlexContainer>
   );
