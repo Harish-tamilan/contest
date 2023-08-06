@@ -214,9 +214,13 @@ const HomePage = ({ handleLogout }) => {
     );
   }
 
+  const onContestSubmit = ()=>{
+    setShowContest(false);
+  }
+
   return (
     <div className="homepage-container">
-      {showContest ? <ContestPage contest={contest} /> : <nav className="navbar">
+      {showContest ? <ContestPage contest={contest} onContestSubmit={onContestSubmit}/> : <nav className="navbar">
         <div
           className={`nav-item ${activePage === 'live' ? 'active' : ''}`}
           onClick={() => handlePageClick('live')}

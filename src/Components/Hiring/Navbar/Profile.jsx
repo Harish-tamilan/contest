@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ProfileSection = () => {
   const [recruiterName, setRecruiterName] = useState("John Doe");
@@ -10,21 +10,46 @@ const ProfileSection = () => {
   const [companyName, setCompanyName] = useState("ABC Company");
   const [companyWebsite, setCompanyWebsite] = useState("www.abccompany.com");
 
-  const handleUpdateProfile = () => {
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
+  const handleUpdateProfile = async () => {
     // Perform update logic here with dummy data
     const updatedProfile = {
-      recruiterName,
-      recruiterTitle,
-      recruiterBio,
-      emailAddress,
-      phoneNumber,
-      linkedinProfile,
-      companyName,
-      companyWebsite,
+      name:recruiterName,
+      email: emailAddress,
+      mobile: phoneNumber
     };
-
+    let response = await fetch('/api/user/update',{
+      method: 'POST',
+      body: JSON.stringify(updatedProfile)
+    });
+    response = await response.json();
+    if(response.status=='success'){
+      alert('Updated successfully');
+    }else{
+      alert(response.error || 'Error while updating the profile');
+    }
     console.log("Updated Profile:", updatedProfile);
   };
+
+  const fetchUserDetails = async () => {
+    let manager = JSON.parse(localStorage.getItem('manager'));
+    console.log('manager, ', manager);
+    let response = await fetch(`/api/user/${manager?._id}`, {
+      method: 'GET'
+    });
+    response = await response.json();
+    if (response.status == 'success') {
+      setRecruiterName(response.result.name);
+      setEmailAddress(response.result.email);
+      setPhoneNumber(response.result.mobile);
+    } else {
+      alert(response.error);
+    }
+    console.log('response of fetchUserDetails, ', response);
+  }
 
   const handleDeleteProfile = () => {
     // Perform delete logic here with dummy data
@@ -54,21 +79,6 @@ const ProfileSection = () => {
           />
         </label>
         <label>
-          Recruiter Title:
-          <input
-            type="text"
-            value={recruiterTitle}
-            onChange={(e) => setRecruiterTitle(e.target.value)}
-          />
-        </label>
-        <label>
-          Recruiter Bio:
-          <textarea
-            value={recruiterBio}
-            onChange={(e) => setRecruiterBio(e.target.value)}
-          />
-        </label>
-        <label>
           Email Address:
           <input
             type="email"
@@ -84,35 +94,8 @@ const ProfileSection = () => {
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
         </label>
-        <label>
-          LinkedIn Profile:
-          <input
-            type="text"
-            value={linkedinProfile}
-            onChange={(e) => setLinkedinProfile(e.target.value)}
-          />
-        </label>
-        <label>
-          Company Name:
-          <input
-            type="text"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-          />
-        </label>
-        <label>
-          Company Website URL:
-          <input
-            type="text"
-            value={companyWebsite}
-            onChange={(e) => setCompanyWebsite(e.target.value)}
-          />
-        </label>
         <button type="button" onClick={handleUpdateProfile}>
           Update
-        </button>
-        <button type="button" onClick={handleDeleteProfile}>
-          Delete
         </button>
       </form>
     </div>

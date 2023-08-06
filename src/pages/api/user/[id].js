@@ -1,13 +1,11 @@
 // pages/api/submission.js
 
+import { getUserDetails } from '@/service/userService';
 import { connectToDatabase } from '../../../mongoConnect';
 
 export default async function handler(req, res) {
-    // if (req.method !== 'GET') {
-    //     return res.status(405).json({ message: 'Method Not Allowed' });
-    // }
-    // await connectToDatabase();
-    // const { testId } = req.query;
-    // const response = await fetchTestSubmissionsService(testId);
-    // return res.status(response.statusCode).json(response);
+    await connectToDatabase();
+    const { id } = req.query;
+    const response = await getUserDetails(id);
+    return res.status(response.statusCode).json(response);
 }

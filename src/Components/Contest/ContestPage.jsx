@@ -89,8 +89,14 @@ const ContestScreen = (props) => {
 
   const onCodeChange = (code, ind, lang) => {
     let codes = [...codeResults];
-    if (codes.length == 0) {
-      codes.push({});
+    if (codes.length <= ind) {
+      for (let i = codes.length; i <= ind; i++) {
+        codes.push({
+          code: "",
+          language: "",
+          score: 0
+        })
+      }
     }
     codes[ind].code = code;
     codes[ind].language = lang;
@@ -127,7 +133,7 @@ const ContestScreen = (props) => {
     }
   }
 
-  const handleBackButtonClick = ()=>{
+  const handleBackButtonClick = () => {
     setShowEditor(false);
   }
 
@@ -147,6 +153,12 @@ const ContestScreen = (props) => {
     response = await response.json();
     console.log('response of handleSubmit, ', response);
     let score = response.passCount / (response.passCount + response.failCount) * 100;
+    if (response.status == 'success') {
+      score = 100;
+      alert("All test cases passed successfully");
+    } else {
+      alert(`${response.passCount} test cases passed out of ${response.failCount + response.passCount}`);
+    }
     console.log('score is ', score, ', codeResults[ind].score', codeResults[ind].score);
     if (score > codeResults[ind].score) {
       let codess = [...codeResults];
@@ -155,7 +167,7 @@ const ContestScreen = (props) => {
     }
   }
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
     let user = JSON.parse(localStorage.getItem("user"));
     let scores = [], n = props.contest?.questions?.length;
     for (let i = 0; i < n; i++) {
@@ -172,10 +184,28 @@ const ContestScreen = (props) => {
     }
     let body = {
       user: user._id,
-      contest: contest._id,
+      contest: props.contest._id,
       scores
     }
+    let scoresSum = 0;
+    for(let score of scores){
+      scoresSum += score.score;
+    }
+    let percentage = scoresSum/(scores.length);
+    body.percentage = percentage;
     console.log('finalSubmission body is ', body);
+    let response = await fetch('/api/user/submitTest', {
+      method:'POST',
+      body: JSON.stringify(body)
+    });
+    response = await response.json();
+    console.log('response of contestSubmit, ', response);
+    if(response.status=='success'){
+      alert('Contest submitted successfully');
+      props.onContestSubmit();
+    }else{
+      alert(response.error);
+    }
   }
 
   const fetchCode = () => {

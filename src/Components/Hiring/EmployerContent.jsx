@@ -29,6 +29,7 @@ const EmployerContent = () => {
       body: body
     });
     response = await response.json();
+    localStorage.setItem('manager', JSON.stringify(response.data));
     if(response.status=='success'){
       setIsLoggedIn(true);
     } else{
