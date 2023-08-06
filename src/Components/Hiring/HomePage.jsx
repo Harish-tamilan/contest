@@ -128,19 +128,14 @@ const HomePage = ({ handleLogout }) => {
             </a>
           </li>
           <li>
-            <a href="/Notification" onClick={handleNotificationClick}>
-              Notifications
-            </a>
-          </li>
-          <li>
-            <a href="/Interview" onClick={handleInterviewClick}>
-              InterviewPage
-            </a>
-          </li>
-          <li>
             <a href="/about" onClick={handleProfileClick}>
               Profile
             </a>
+          </li>
+          <li>
+            <span onClick={handleLogout}>
+              Logout
+            </span>
           </li>
         </ul>
       </nav>
