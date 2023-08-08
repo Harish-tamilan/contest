@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ProfilePage.css";
 
 const ProfileSection = ({ handleBack }) => {
@@ -15,6 +15,21 @@ const ProfileSection = ({ handleBack }) => {
   const [editMode, setEditMode] = useState(false);
   const [updatedProfileData, setUpdatedProfileData] = useState({ ...profileData });
 
+  useEffect(()=>{
+    fetchCustomerDetails();
+  }, []);
+
+  const fetchCustomerDetails = async ()=>{
+    let user = JSON.parse(localStorage.getItem('user'));
+    let response = await fetch(`/api/user/${user._id}`,{
+      method: 'GET'
+    });
+    response = await response.json();
+    setProfileData(response.result);
+    setUpdatedProfileData(response.result);
+    console.log('response of fetchCustomerDetails, ', response);
+  }
+
   const handleEditProfile = () => {
     setEditMode(true);
   };
@@ -24,7 +39,15 @@ const ProfileSection = ({ handleBack }) => {
     setUpdatedProfileData({ ...updatedProfileData, [name]: value });
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async() => {
+    let response = await fetch('/api/user/update',{
+      method: 'POST',
+      body: JSON.stringify(updatedProfileData)
+    });
+    response = await response.json();
+    if(response.status=='success'){
+      alert('Profile updated successfully');
+    }
     setProfileData(updatedProfileData);
     setEditMode(false);
   };
@@ -36,7 +59,7 @@ const ProfileSection = ({ handleBack }) => {
 
   return (
     <div className="profile-section">
-      <h2 className="profile-title">Participant Profile</h2>
+      <h2 className="profile-title">Participant Profileeee</h2>
       
       {editMode ? (
         <div className="profile-details">
